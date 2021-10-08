@@ -1,39 +1,11 @@
 const { MessageEmbed } = require('discord.js');
 const config = require('../config.js');
-const { findUser } = require('../src/helper.js');
-
-const validateEmail = (email, matricula) => {
-    if (!email.includes(config.DOMAIN))
-        throw new Error(
-            `Oops, ese formato no es el correcto, recuerda que el correo institucional debe contener el dominio **${config.DOMAIN}**`
-        );
-    if (matricula.length !== 10)
-        throw new Error(
-            `Oops, parece que has ingresado mal tu matrícula, recuerda que debe tener 10 dígitos`
-        );
-};
-
-/**
- *
- * @param {client} client cliente
- * @param {Number} matricula matricula
- * @param {Boolean} checkAvailable Enviará al usuario un mensaje en caso de que esta matrícula esté en uso
- * @returns {Object | Boolean} Si checkAvailable esta desactivado, solamente retornará los datos.
- */
-const checkStudentIdAvailable = function (
-    client,
-    matricula,
-    checkAvailable = false
-) {
-    const data = client.getLogMatricula.get(matricula);
-    if (!data) return true;
-    if (checkAvailable) {
-        throw new Error(
-            `Esta matrícula (${matricula}) ya ha sido reclamada por alguien más, si crees que se trata de un error, por favor, solicita soporte en el servidor de la universidad.`
-        );
-    }
-    return data;
-};
+const {
+    findUser,
+    wait,
+    simpleEmbedMSG,
+    checkCmdInChannel,
+} = require('../src/helper.js');
 
 const checkRegistered = function (client, discordID) {
     const dataObj = client.getData.get(discordID.id);
@@ -47,7 +19,33 @@ const checkRegistered = function (client, discordID) {
         throw new Error(
             `Ya tienes una matrícula registrada **(${studentData.studentData.matricula})**`
         );
-    return false;
+};
+
+const checkArgs = function (args) {
+    if (args.length !== 1) {
+        throw new Error(
+            'Necesitas especificar SOLO el correo institucional al que vincularás tu cuenta\nEjemplo: !register 1718114562@utectulancingo.edu.mx'
+        );
+    }
+};
+const validateEmail = (email, matricula) => {
+    if (!email.includes(config.DOMAIN))
+        throw new Error(
+            `Oops, ese formato no es el correcto, recuerda que el correo institucional debe contener el dominio **${config.DOMAIN}**`
+        );
+    if (matricula.length !== 10)
+        throw new Error(
+            `Oops, parece que has ingresado mal tu matrícula, recuerda que debe tener 10 dígitos`
+        );
+};
+
+const checkStudentIdAvailable = function (client, matricula) {
+    const data = client.getLogMatricula.get(matricula);
+    if (data)
+        throw new Error(
+            `Esta matrícula (**${matricula}**) ya ha sido reclamada por alguien más, si crees que se trata de un error, por favor, solicita soporte en el servidor de la universidad.`
+        );
+    return true;
 };
 
 const registerStudent = function (client, studentData, studentDiscordID) {
@@ -88,7 +86,7 @@ const successRegistered = async function (
 ) {
     messageToRemove.delete();
     const msgEmbed = new MessageEmbed()
-        .setColor('#0099ff')
+        .setColor(config.COLOR_SUCCESS)
         .setTitle('**🎉 ¡Felicidades! 🎉**')
         .setDescription(
             `La matrícula **${studentData.matricula}** ahora está vinculada a tu cuenta de discord.\nDentro de unos instantes, tus roles serán asignados y tendrás acceso a todo lo relacionado a tu formación profesional. ¡Buena suerte!\n`
@@ -122,63 +120,99 @@ const successRegistered = async function (
     await addRoles(studentData, userDiscord);
 };
 
+// ---------------------------------
+// LOGIC STARTS HERE
+// ---------------------------------
+
 module.exports = async function (client, message, args) {
     const user = message.author;
-
-    if (args.length < 1) {
-        user.send(
-            'Necesitas especificar el correo institucional al que vincularás tu cuenta\nEjemplo: !register 1718114562@utectulancingo.edu.mx'
-        );
-        message.delete();
-        return;
-    }
-
     const email = args[0];
-    const matricula = args[0].split('@')[0];
-    const userDiscord = message.guild.member(user);
+    const matricula = args.length > 0 ? args[0].split('@')[0] : '';
 
-    // Validate email
     try {
+        // Check if the command is executed in "register" channel
+        await checkCmdInChannel(client, message, config.CHANNEL_REGISTER);
+
+        //Then, get the user
+        const userDiscord = message.guild.member(user);
+
+        // Check if the Discord user has not an Student Id registered
+        checkRegistered(client, userDiscord);
+
+        // Check that args has at least, 1 parameter
+        checkArgs(args);
+
+        // Validate email
         validateEmail(email, matricula);
 
         // Check if this Student ID is available
-        checkRegistered(client, userDiscord);
-        checkStudentIdAvailable(client, matricula, true);
+        checkStudentIdAvailable(client, matricula);
 
         // Get student's data
         const studentData = await findUser(matricula);
+
         // Create confirm message
         const confirmMessage = await user.send(
-            `Esta matrícula *(${studentData.matricula})* pertenece a **${studentData.nombre} ${studentData.apellido}**, del grupo **${studentData.grupo}** \nSi los datos son correctos, selecciona ✅, de lo contrario, selecciona ❌`
+            simpleEmbedMSG(
+                config.COLOR_CONFIRM,
+                `Esta matrícula *(${studentData.matricula})* pertenece a **${studentData.nombre} ${studentData.apellido}**, del grupo **${studentData.grupo}** \nSi los datos son correctos, selecciona ✅, de lo contrario, selecciona ❌`
+            )
         );
+
+        // Add reactions (Future options)
         confirmMessage.react('✅');
         confirmMessage.react('❌');
 
+        // Create collector from the previous message and filter bot's reactions
         const collector = confirmMessage.createReactionCollector(
             (_, user) => !user.bot
         );
+
+        // Initialize collector's events
         await collector.on('collect', async (reaction) => {
             const user = reaction.users.cache.last();
             if (reaction.emoji.name === '✅') {
-                // Check if this Student ID is available
-                if (checkStudentIdAvailable(client, matricula, true)) {
-                    // if (!checkStudentIdAvailable(client, matricula, true)) return;
-                    // Register student
-                    registerStudent(client, studentData, user.id);
+                try {
+                    // Check if this Student ID is available
+                    if (checkStudentIdAvailable(client, matricula)) {
+                        // Register student
+                        registerStudent(client, studentData, user.id);
 
-                    successRegistered(confirmMessage, studentData, userDiscord);
+                        // Send success message
+                        successRegistered(
+                            confirmMessage,
+                            studentData,
+                            userDiscord
+                        );
+                    }
+                } catch (err) {
+                    user.send(simpleEmbedMSG(config.COLOR_ERROR, err.message));
+                    confirmMessage.delete();
                 }
-                return;
             }
             if (reaction.emoji.name === '❌') {
                 confirmMessage.delete();
                 user.send(
-                    '¡Puedes volver a iniciar el registro cuando quieras!\nSolo visita el canal **#Registro** dentro del servidor de la universidad'
+                    simpleEmbedMSG(
+                        config.COLOR_HINT,
+                        '¡Puedes volver a iniciar el registro cuando quieras!\nSolo visita el canal **#Registro** dentro del servidor de la universidad'
+                    )
+                );
+            }
+        });
+        wait(config.TIME_OUT_REGISTER_SEC).then(() => {
+            if (!confirmMessage.deleted) {
+                confirmMessage.delete();
+                user.send(
+                    simpleEmbedMSG(
+                        config.COLOR_ERROR,
+                        'Has excedido el tiempo de respuesta para registrarte. Prueba de nuevo'
+                    )
                 );
             }
         });
     } catch (err) {
-        user.send(err.message);
+        user.send(simpleEmbedMSG(config.COLOR_ERROR, err.message));
     }
-    message.delete();
+    if (message.channel.type !== 'dm') message.delete();
 };

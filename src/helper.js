@@ -1,3 +1,4 @@
+const { MessageEmbed } = require('discord.js');
 let { readdirSync } = require('fs');
 /**
  *
@@ -22,7 +23,30 @@ const findUser = async function (matricula) {
         throw err;
     }
 };
+const wait = function (seconds) {
+    return new Promise(function (resolve) {
+        setTimeout(resolve, seconds * 1000);
+    });
+};
+const simpleEmbedMSG = (color, description) =>
+    new MessageEmbed().setColor(color).setDescription(description);
+
+const checkCmdInChannel = async function (client, cmd, channelID) {
+    const channel = await client.channels.fetch(channelID);
+    const idToCheck = await channelID;
+    if (cmd.channel.id == idToCheck && cmd.guild) return true;
+    throw new Error(
+        `El comando ${cmd} solo puede ser ejecutado en **#${channel.name}** ${
+            cmd.channel.type === 'dm'
+                ? 'dentro del servidor de la universidad'
+                : ''
+        }`
+    );
+};
 
 module.exports = {
     findUser,
+    wait,
+    simpleEmbedMSG,
+    checkCmdInChannel,
 };
