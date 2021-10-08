@@ -1,5 +1,5 @@
 const { MessageEmbed } = require('discord.js');
-const config = require('../config.js');
+const config = require('../configuration/config.js');
 const {
     findUser,
     wait,
@@ -110,10 +110,7 @@ const successRegistered = async function (
         .setFooter(
             'No olvides que puedes utilizar !help para ver una lista completa de los comandos con los que te puedo ayudar'
         )
-        .setAuthor(
-            'Universidad Tecnológica de Tulancingo',
-            `${config.LOGO_URL}`
-        )
+        .setAuthor(config.UNIVERSITY_FULL_NAME, `${config.LOGO_URL}`)
         .setThumbnail(`${config.LOGO_URL}`)
         .setTimestamp();
     userDiscord.send(msgEmbed);

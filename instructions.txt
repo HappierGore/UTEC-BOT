@@ -12,7 +12,7 @@ Tabla2: MatriculasRegistradas
 3. FechaRegistro, Type: TEXT
 
 
-Es necesario crear un config.js con los siguientes valores:
+Es necesario crear un config.js en /configuration/ con los siguientes valores:
 
 let config = {
     token: '', //Your token bot here

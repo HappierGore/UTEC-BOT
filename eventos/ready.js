@@ -1,5 +1,35 @@
-const SQLite = require('better-sqlite3');
-const sql = new SQLite('./localData/studentsDiscord.db');
+const sqlCommands = require('../src/sqlManager.js');
+const rulesJSON = require('../configuration/rules.json');
+const config = require('../configuration/config.js');
+const { simpleEmbedMSG, numberToEmoji } = require('../src/helper.js');
+
+const loadRules = async function (msg) {
+    const rulesFixed = Object.entries(rulesJSON)
+        .map((obj, i) => `${numberToEmoji(i + 1)} ${obj[1]}`)
+        .join('\n\n');
+    const msgToSend = simpleEmbedMSG(config.COLOR_HINT, rulesFixed)
+        .setTitle('‼ REGLAS ‼')
+        .setFooter('Si tienes alguna recomendación, visita #recomendaciones');
+
+    msg.edit(msgToSend);
+};
+
+const loadRuleMessage = async function (client) {
+    const ruleChannel = await client.channels.fetch(config.CHANNEL_WELCOME);
+    let ruleMessage;
+    try {
+        ruleMessage = await ruleChannel.messages.fetch(config.MSG_RULES);
+        await loadRules(ruleMessage);
+    } catch (err) {
+        const msg = simpleEmbedMSG(config.COLOR_CONFIRM, 'Loading Data');
+        ruleMessage = await ruleChannel.send(msg);
+        msg.setDescription(
+            `Add this ID in config.js to config RULES\n\n  ${ruleMessage.id}`
+        );
+        ruleMessage.edit(msg);
+        return;
+    }
+};
 
 module.exports = async (client) => {
     client.user.setPresence({
@@ -10,20 +40,11 @@ module.exports = async (client) => {
         },
     });
 
+    loadRuleMessage(client);
+
     // SQL Commands
-    client.getData = sql.prepare(
-        'SELECT * FROM DiscordStudentsData WHERE DiscordID = ?'
-    );
+    sqlCommands(client);
 
-    client.setData = sql.prepare(
-        'INSERT OR REPLACE INTO DiscordStudentsData (DiscordID, studentData, flags) VALUES (@DiscordID, @studentData, @flags);'
-    );
-
-    client.getLogMatricula = sql.prepare(
-        'SELECT * FROM MatriculasRegistradas WHERE Matricula = ?'
-    );
-
-    client.setLogMatricula = sql.prepare(
-        'INSERT OR REPLACE INTO MatriculasRegistradas (Matricula, RegistradaPor, FechaRegistro) VALUES (@Matricula, @RegistradaPor, @FechaRegistro);'
-    );
+    // Loading Rules
+    // loadRules();
 };

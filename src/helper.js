@@ -34,9 +34,10 @@ const simpleEmbedMSG = (color, description) =>
 const checkCmdInChannel = async function (client, cmd, channelID) {
     const channel = await client.channels.fetch(channelID);
     const idToCheck = await channelID;
+    const cmdFx = cmd.content.split(' ')[0];
     if (cmd.channel.id == idToCheck && cmd.guild) return true;
     throw new Error(
-        `El comando ${cmd} solo puede ser ejecutado en **#${channel.name}** ${
+        `El comando ${cmdFx} solo puede ser ejecutado en **#${channel.name}** ${
             cmd.channel.type === 'dm'
                 ? 'dentro del servidor de la universidad'
                 : ''
@@ -44,9 +45,41 @@ const checkCmdInChannel = async function (client, cmd, channelID) {
     );
 };
 
+const numberToEmoji = function (number) {
+    const numberArr = number.toString().split('');
+    const newNumber = numberArr
+        .map((value) => {
+            switch (+value) {
+                case 0:
+                    return ':zero:';
+                case 1:
+                    return ':one:';
+                case 2:
+                    return ':two:';
+                case 3:
+                    return ':three:';
+                case 4:
+                    return ':four:';
+                case 5:
+                    return ':five:';
+                case 6:
+                    return ':six:';
+                case 7:
+                    return ':seven:';
+                case 8:
+                    return ':eight:';
+                case 9:
+                    return ':nine:';
+            }
+        })
+        .join('');
+    return newNumber;
+};
+
 module.exports = {
     findUser,
     wait,
     simpleEmbedMSG,
     checkCmdInChannel,
+    numberToEmoji,
 };

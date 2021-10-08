@@ -1,12 +1,12 @@
 Nuevos usuarios:
-- Asignar un rol donde no tengan acceso a nada más que a FAQ o soporte
-- Desplegar reglas e introducción del bot en mensaje privado
-    * Realizar un registro con correo institucional
-        > Si el correo no termina con 'utectulancingo.edu.mx' enviar un error para que se ingrese de nuevo
-        > Si el correo no tiene un tamaño exacto de 32 caracteres, enviar error
-        > Obtener datos del usuario con la matrícula (Primeros 10 digitos)
-    * En un mensaje con reacción, confirmar entrada del servidor.
-    * Asignar rol automáticamente dependiendo del correo institucional (Revisar datos)
-    * Crear canales para cada rol / clase.
+- Asignar un rol donde no tengan acceso a nada más que a FAQ o soporte *DONE
+- Desplegar reglas e introducción del bot en mensaje publico *DONE
+    * Realizar un registro con correo institucional *DONE
+        > Si el correo no termina con 'utectulancingo.edu.mx' enviar un error para que se ingrese de nuevo *DONE
+        > Si el correo no tiene un tamaño exacto de 32 caracteres, enviar error *DONE
+        > Obtener datos del usuario con la matrícula (Primeros 10 digitos) *DONE
+    * En un mensaje con reacción, confirmar entrada del servidor. *DONE
+    * Asignar rol automáticamente dependiendo del correo institucional (Revisar datos) *DONE
+- Crear canales para cada rol / clase.
 
 
