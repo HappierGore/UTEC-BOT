@@ -1,0 +1,34 @@
+Forma en que las bases de datos deberán tener forma:
+/localData/
+
+Tabla1: DiscordStudentsData
+1. Key: DiscordID, Type; INTEGER, UNIQUE
+2. studentData Type: TEXT
+3. flags Type: TEXT
+
+Tabla2: MatriculasRegistradas
+1. Key: Matricula, Type: INTEGER, UNIQUE
+2. RegistradaPor, Type: INTEGER, UNIQUE
+3. FechaRegistro, Type: TEXT
+
+
+Es necesario crear un config.js con los siguientes valores:
+
+let config = {
+    token: '', //Your token bot here
+    prefix: '!',
+    // Dominio de la universidad (Del correo)
+    DOMAIN: 'utectulancingo.edu.mx',
+    LOGO_URL:
+        'https://pbs.twimg.com/media/DwftYgcU0AAu3KG?format=jpg&name=small',
+    // ---------------------
+    // Roles
+    // ---------------------
+    NEWBIE_ROLE_ID: '866874686767628288',
+    ALUMNO: '866874175615664158',
+    MAESTRO: '866873597561405440',
+    // Electromecánica:
+    ING_MECATRONICA: '866876839347879956',
+    MEC_101: '866877265655889960',
+};
+module.exports = config;
