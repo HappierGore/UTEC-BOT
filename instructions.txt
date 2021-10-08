@@ -17,6 +17,13 @@ Es necesario crear un config.js con los siguientes valores:
 let config = {
     token: '', //Your token bot here
     prefix: '!',
+    // TIMES
+    TIME_OUT_REGISTER_SEC: 30,
+    // COLOR
+    COLOR_ERROR: '#C11212',
+    COLOR_HINT: '#0099ff',
+    COLOR_CONFIRM: '#DBCB0B',
+    COLOR_SUCCESS: '#0BDB0B',
     // Dominio de la universidad (Del correo)
     DOMAIN: 'utectulancingo.edu.mx',
     LOGO_URL:
@@ -30,5 +37,9 @@ let config = {
     // Electromecánica:
     ING_MECATRONICA: '866876839347879956',
     MEC_101: '866877265655889960',
+    // ----------------------
+    // Important Channels (Where commands only executes in thaose channels)
+    // ----------------------
+    CHANNEL_REGISTER: '895824208947445830',
 };
 module.exports = config;
