@@ -1,33 +1,11 @@
-const { MessageEmbed } = require('discord.js');
 const config = require('../configuration/config.js');
+const { findUser, wait, simpleEmbedMSG } = require('../src/helper.js');
 const {
-    findUser,
-    wait,
-    simpleEmbedMSG,
     checkCmdInChannel,
-} = require('../src/helper.js');
+    checkNoRegistered,
+    checkArgs,
+} = require('../src/cmdCheckOuts.js');
 
-const checkRegistered = function (client, discordID) {
-    const dataObj = client.getData.get(discordID.id);
-    if (!dataObj) return false;
-    const studentData = {
-        DiscordID: dataObj.DiscordID,
-        studentData: JSON.parse(dataObj.studentData),
-        flags: JSON.parse(dataObj.flags),
-    };
-    if (studentData?.studentData?.matricula)
-        throw new Error(
-            `Ya tienes una matrícula registrada **(${studentData.studentData.matricula})**`
-        );
-};
-
-const checkArgs = function (args) {
-    if (args.length !== 1) {
-        throw new Error(
-            'Necesitas especificar SOLO el correo institucional al que vincularás tu cuenta\nEjemplo: !register 1718114562@utectulancingo.edu.mx'
-        );
-    }
-};
 const validateEmail = (email, matricula) => {
     if (!email.includes(config.DOMAIN))
         throw new Error(
@@ -40,7 +18,7 @@ const validateEmail = (email, matricula) => {
 };
 
 const checkStudentIdAvailable = function (client, matricula) {
-    const data = client.getLogMatricula.get(matricula);
+    const data = client.getData.get(-1, matricula);
     if (data)
         throw new Error(
             `Esta matrícula (**${matricula}**) ya ha sido reclamada por alguien más, si crees que se trata de un error, por favor, solicita soporte en el servidor de la universidad.`
@@ -48,19 +26,14 @@ const checkStudentIdAvailable = function (client, matricula) {
     return true;
 };
 
-const registerStudent = function (client, studentData, studentDiscordID) {
+const registerStudent = function (client, matricula, studentDiscordID) {
     const studentDiscord = {
         DiscordID: studentDiscordID,
-        studentData: JSON.stringify(studentData),
+        Matricula: matricula,
+        FechaRegistro: new Date().toLocaleString(),
         flags: JSON.stringify({}),
     };
     client.setData.run(studentDiscord);
-    const logMatricula = {
-        Matricula: studentData.matricula,
-        RegistradaPor: studentDiscordID,
-        FechaRegistro: new Date().toLocaleString(),
-    };
-    client.setLogMatricula.run(logMatricula);
 };
 
 const addRoles = async function (studentData, userDiscord) {
@@ -85,12 +58,11 @@ const successRegistered = async function (
     userDiscord
 ) {
     messageToRemove.delete();
-    const msgEmbed = new MessageEmbed()
-        .setColor(config.COLOR_SUCCESS)
+    const msgEmbed = simpleEmbedMSG(
+        config.COLOR_SUCCESS,
+        `La matrícula **${studentData.matricula}** ahora está vinculada a tu cuenta de discord.\nDentro de unos instantes, tus roles serán asignados y tendrás acceso a todo lo relacionado a tu formación profesional. ¡Buena suerte!\n`
+    )
         .setTitle('**🎉 ¡Felicidades! 🎉**')
-        .setDescription(
-            `La matrícula **${studentData.matricula}** ahora está vinculada a tu cuenta de discord.\nDentro de unos instantes, tus roles serán asignados y tendrás acceso a todo lo relacionado a tu formación profesional. ¡Buena suerte!\n`
-        )
         .addFields(
             {
                 name: 'Nombre:',
@@ -134,10 +106,14 @@ module.exports = async function (client, message, args) {
         const userDiscord = message.guild.member(user);
 
         // Check if the Discord user has not an Student Id registered
-        checkRegistered(client, userDiscord);
+        await checkNoRegistered(client, userDiscord);
 
         // Check that args has at least, 1 parameter
-        checkArgs(args);
+        checkArgs(
+            args,
+            1,
+            'Necesitas especificar SOLO el correo institucional al que vincularás tu cuenta\nEjemplo: !register 1718114562@utectulancingo.edu.mx'
+        );
 
         // Validate email
         validateEmail(email, matricula);
@@ -173,7 +149,7 @@ module.exports = async function (client, message, args) {
                     // Check if this Student ID is available
                     if (checkStudentIdAvailable(client, matricula)) {
                         // Register student
-                        registerStudent(client, studentData, user.id);
+                        registerStudent(client, matricula, user.id);
 
                         // Send success message
                         successRegistered(

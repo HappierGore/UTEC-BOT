@@ -1,7 +1,7 @@
 const { MessageEmbed } = require('discord.js');
 let { readdirSync } = require('fs');
 /**
- *
+ * Busca entre la API el usuario especificado por matrícula
  * @param {Number} matricula Matricula a buscar
  * @returns {Object} Información correspondiente a la matricula especificada (Obtenido desde la API)
  */
@@ -30,20 +30,6 @@ const wait = function (seconds) {
 };
 const simpleEmbedMSG = (color, description) =>
     new MessageEmbed().setColor(color).setDescription(description);
-
-const checkCmdInChannel = async function (client, cmd, channelID) {
-    const channel = await client.channels.fetch(channelID);
-    const idToCheck = await channelID;
-    const cmdFx = cmd.content.split(' ')[0];
-    if (cmd.channel.id == idToCheck && cmd.guild) return true;
-    throw new Error(
-        `El comando ${cmdFx} solo puede ser ejecutado en **#${channel.name}** ${
-            cmd.channel.type === 'dm'
-                ? 'dentro del servidor de la universidad'
-                : ''
-        }`
-    );
-};
 
 const numberToEmoji = function (number) {
     const numberArr = number.toString().split('');
@@ -80,6 +66,5 @@ module.exports = {
     findUser,
     wait,
     simpleEmbedMSG,
-    checkCmdInChannel,
     numberToEmoji,
 };

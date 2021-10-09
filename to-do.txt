@@ -9,4 +9,15 @@ Nuevos usuarios:
     * Asignar rol automáticamente dependiendo del correo institucional (Revisar datos) *DONE
 - Crear canales para cada rol / clase.
 
+Comandos:
+- !register: Registrar usuario *LISTO
+- !unregister: Eliminar usuario del registro
+- !userInfo: Información detallada de un usuario (Sólo con permisos)
+- !clearChat: Vaciar los mensajes del canal (Filtrar por fecha, cantidad o todo)
+- !nextClassroom: Redirigir al canal de video para la siguiente clase del alumno/profesor
+- !notes {materia?}: Obtener las calificaciones de una o todas las materias
+- !updateUser {roles,data}: Actualiza los roles/data de un usuario (Sólo con permisos)
+- !calendar: Obtiene el horario del alumno/profesor
+- !me: Retorna la información del usuario en cuestión.
+- !help: Retorna una lista completa de todos los comandos disponibles (Separando por permisos)
 

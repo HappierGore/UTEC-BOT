@@ -1,20 +1,17 @@
 const SQLite = require('better-sqlite3');
 const sql = new SQLite('./localData/studentsDiscord.db');
 const sqlCommands = function (client) {
+    // Obtener datos
     client.getData = sql.prepare(
-        'SELECT * FROM DiscordStudentsData WHERE DiscordID = ?'
+        'SELECT * FROM DiscordStudentsData WHERE DiscordID = ? OR Matricula = ?'
     );
-
+    // Establecer datos
     client.setData = sql.prepare(
-        'INSERT OR REPLACE INTO DiscordStudentsData (DiscordID, studentData, flags) VALUES (@DiscordID, @studentData, @flags);'
+        'INSERT OR REPLACE INTO DiscordStudentsData (DiscordID, Matricula, FechaRegistro, flags) VALUES (@DiscordID, @Matricula, @FechaRegistro, @flags);'
     );
-
-    client.getLogMatricula = sql.prepare(
-        'SELECT * FROM MatriculasRegistradas WHERE Matricula = ?'
-    );
-
-    client.setLogMatricula = sql.prepare(
-        'INSERT OR REPLACE INTO MatriculasRegistradas (Matricula, RegistradaPor, FechaRegistro) VALUES (@Matricula, @RegistradaPor, @FechaRegistro);'
+    // Eliminar datos
+    client.delData = sql.prepare(
+        'DELETE FROM DiscordStudentsData WHERE DiscordID = ? OR Matricula = ?'
     );
 };
 module.exports = sqlCommands;
