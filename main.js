@@ -5,7 +5,7 @@ const client = new Discord.Client({
 
 let { readdirSync } = require('fs');
 
-client.config = require('./configuration/config.js');
+client.config = require('./configuration/configBot.js');
 client.comandos = new Discord.Collection();
 //Controlador de comandos
 for (const file of readdirSync('./comandos/')) {

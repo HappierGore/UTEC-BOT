@@ -11,7 +11,7 @@ Nuevos usuarios:
 
 Comandos:
 - !register: Registrar usuario *LISTO
-- !unregister: Eliminar usuario del registro
+- !unregister: Eliminar usuario del registro *LISTO
 - !userInfo: Información detallada de un usuario (Sólo con permisos)
 - !clearChat: Vaciar los mensajes del canal (Filtrar por fecha, cantidad o todo)
 - !nextClassroom: Redirigir al canal de video para la siguiente clase del alumno/profesor

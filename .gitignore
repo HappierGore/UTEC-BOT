@@ -2,6 +2,5 @@ node_modules
 .idea
 .vs
 .vscode
-config.js
+configBot.js
 dataAPI
-localData

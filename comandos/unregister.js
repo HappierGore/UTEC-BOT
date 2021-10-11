@@ -9,13 +9,8 @@ const unregisterUser = function (client, userDiscord) {
     client.delData.run(userDiscord.id, -1);
 };
 
-const successDeleted = async function (
-    messageToRemove,
-    matricula,
-    userDiscord
-) {
+const successDeleted = async function (matricula, userDiscord) {
     const studentData = await findUser(matricula);
-    messageToRemove.delete();
     const msgEmbed = simpleEmbedMSG(
         config.COLOR_SUCCESS,
         `La matrícula **${matricula}** se ha removido de tu cuenta de discord.\nDentro de unos instantes, tus roles serán removidos y perderás el acceso a todos los canales, y ahora serás un invitado.\nPuedes volver a registrarte visitando **#registro** en el servidor`
@@ -54,13 +49,13 @@ module.exports = async function (client, message, args) {
         await checkCmdInChannel(client, message, config.CHANNEL_REGISTER);
 
         //Then, get the user
-        const userDiscord = message.guild.member(messageAuthor);
+        const userDiscord = await message.guild.member(messageAuthor);
 
         // Check if the Discord user has an Student Id registered
         await checkRegistered(client, userDiscord);
 
         // Get student data
-        const dataObj = client.getData.get(messageAuthor.id, -1);
+        const dataObj = await client.getData.get(messageAuthor.id, -1);
         const studentData = {
             DiscordID: dataObj.DiscordID,
             Matricula: dataObj.Matricula,
@@ -86,13 +81,13 @@ module.exports = async function (client, message, args) {
         await collector.on('collect', async (reaction) => {
             const user = reaction.users.cache.last();
             if (reaction.emoji.name === '✅') {
+                confirmMessage.delete();
+
                 // Remove user from database
                 unregisterUser(client, userDiscord);
-                successDeleted(
-                    confirmMessage,
-                    studentData.Matricula,
-                    userDiscord
-                );
+
+                // Send success message
+                successDeleted(studentData.Matricula, userDiscord);
             }
             if (reaction.emoji.name === '❌') {
                 confirmMessage.delete();

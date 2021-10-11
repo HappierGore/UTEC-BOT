@@ -21,7 +21,7 @@ const checkCmdInChannel = async function (client, cmd, channelID) {
     );
 };
 /**
- * Revisará si el usuario de discord se encuentra actualmente registrado con una matrícula estudiantil en la base de datos.
+ * Revisará si el usuario de discord NO se encuentra actualmente registrado con una matrícula estudiantil en la base de datos.
  * @param {Client} client Cliente de discord
  * @param {Number} discordID ID del miembro a verificar
  * * @param {Number} matricula Si prefieres buscar por matricula
@@ -44,7 +44,7 @@ const checkNoRegistered = async function (client, discordID, matricula = -1) {
  * @param {Client} client Cliente de discord
  * @param {Number} discordID ID del miembro a verificar
  * @param {Number} matricula Si prefieres buscar por matricula
- * @returns {Boolean | Error} Falso si no esta registrado, Error si existe registro.
+ * @returns {Boolean | Error} Verdadero si esta registrado, Error si no existe registro.
  */
 const checkRegistered = async function (client, discordID, matricula = -1) {
     const dataObj = await client.getData.get(discordID.id, matricula);
