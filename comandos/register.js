@@ -37,17 +37,18 @@ const registerStudent = function (client, matricula, studentDiscordID) {
 };
 
 const addRoles = async function (studentData, userDiscord) {
-    userDiscord.roles.add(config.ALUMNO);
+    userDiscord.roles.add(config.ROLE_ALUMNO);
+    userDiscord.roles.remove(config.ROLE_NEWBIE);
     // Select profession
     switch (studentData.carrera) {
         case 'Ingeniería mecatrónica': {
-            userDiscord.roles.add(config.ING_MECATRONICA);
+            userDiscord.roles.add(config.ROLE_ING_MECATRONICA);
         }
     }
     // Select group
     switch (studentData.grupo) {
         case 'MEC101': {
-            userDiscord.roles.add(config.MEC_101);
+            userDiscord.roles.add(config.ROLE_MEC_101);
         }
     }
 };

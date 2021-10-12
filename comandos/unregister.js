@@ -39,7 +39,20 @@ const successDeleted = async function (matricula, userDiscord) {
         .setThumbnail(`${config.LOGO_URL}`)
         .setTimestamp();
     userDiscord.send(msgEmbed);
-    // await addRoles(studentData, userDiscord);
+    resetRoles(userDiscord);
+};
+
+const resetRoles = function (userDiscord) {
+    userDiscord._roles.forEach(async (role) => {
+        await userDiscord.roles
+            .remove(role)
+            .catch((_) =>
+                console.warn(
+                    `No fue posible remover el rol(es) con la(s) ID: ${role} del usuario ${userDiscord.user.username} con ID: ${userDiscord.id}`
+                )
+            );
+    });
+    userDiscord.roles.add(config.ROLE_NEWBIE);
 };
 
 module.exports = async function (client, message, args) {

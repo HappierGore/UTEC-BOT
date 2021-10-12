@@ -1,5 +1,6 @@
-const { MessageEmbed } = require('discord.js');
+const { MessageEmbed, Client } = require('discord.js');
 let { readdirSync } = require('fs');
+const config = require('../configuration/config');
 /**
  * Busca entre la API el usuario especificado por matrícula
  * @param {Number} matricula Matricula a buscar
@@ -31,6 +32,59 @@ const wait = function (seconds) {
 const simpleEmbedMSG = (color, description) =>
     new MessageEmbed().setColor(color).setDescription(description);
 
+/**
+ * Retornará un embed con todos los datos del usuario seleccionado. Este puede ser buscado por matrícula o al nombrar a un usuario de discord.
+ * @param {Object} studentDataAPI Los datos del API del usuario
+ * @param {Object} studentDataDB  Los datos de la base de datos del usuario
+ * @param {Client.User} studentDiscord Los datos de usuario de discord.
+ * @returns {EmbedMessage} Todos los datos de un usuario en un maravilloso embed
+ */
+const studentResumeEmbed = (studentDataAPI, studentDataDB, studentDiscord) =>
+    new MessageEmbed()
+        .setAuthor(config.UNIVERSITY_FULL_NAME)
+        .setTitle(`Resumen del usuario ${studentDiscord.username}`)
+        .setThumbnail(config.LOGO_URL)
+        .addFields(
+            studentDataAPI
+                ? createFields(studentDataAPI, true)
+                : { name: '\u200B', value: '\u200B', inline: true },
+            studentDataDB
+                ? {
+                      name: 'Fecha registro',
+                      value: studentDataDB.FechaRegistro,
+                      inline: true,
+                  }
+                : { name: '\u200B', value: '\u200B', inline: true }
+        )
+        .setColor(config.COLOR_HINT)
+        .setFooter(
+            'No olvides que puedes utilizar !help para ver una lista completa de los comandos con los que te puedo ayudar'
+        )
+        .setTimestamp();
+
+/**
+ * Creará un conjunto de objetos con el formato necesario para los fields de los mensajes Embed. {name 'someName', value: 'someValue'}
+ * @param {Object | Array} obj Datos del alumno
+ * @param {Boolean} line Los fields deberían estar en columnas?
+ * @returns {Object} Información del alumno en formato "Field" para mensajes embed
+ */
+const createFields = function (obj, line = false) {
+    const objArr = typeof obj === 'object' ? Object.entries(obj) : obj;
+    const newObj = objArr.map((el) => {
+        return { name: `${firstUpperCase(el[0])}`, value: el[1], inline: line };
+    });
+    return newObj;
+};
+
+/**
+ * Convierte la primera letra de la palabra en mayúscula
+ * @param {String} word Palabra a modificar
+ * @returns La misma palabra pero con la primera letra en mayúsculas
+ */
+const firstUpperCase = function (word) {
+    const first = word.slice(0, 1).toUpperCase();
+    return first + word.slice(1);
+};
 const numberToEmoji = function (number) {
     const numberArr = number.toString().split('');
     const newNumber = numberArr
@@ -67,4 +121,7 @@ module.exports = {
     wait,
     simpleEmbedMSG,
     numberToEmoji,
+    createFields,
+    firstUpperCase,
+    studentResumeEmbed,
 };
