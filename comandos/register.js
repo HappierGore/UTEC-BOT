@@ -1,5 +1,10 @@
 const config = require('../configuration/config.js');
-const { findUser, wait, simpleEmbedMSG } = require('../src/helper.js');
+const {
+    findUser,
+    wait,
+    simpleEmbedMSG,
+    universityMsgHeader,
+} = require('../src/helper.js');
 const {
     checkCmdInChannel,
     checkNoRegistered,
@@ -59,10 +64,11 @@ const successRegistered = async function (
     userDiscord
 ) {
     messageToRemove.delete();
-    const msgEmbed = simpleEmbedMSG(
-        config.COLOR_SUCCESS,
-        `La matrícula **${studentData.matricula}** ahora está vinculada a tu cuenta de discord.\nDentro de unos instantes, tus roles serán asignados y tendrás acceso a todo lo relacionado a tu formación profesional. ¡Buena suerte!\n`
-    )
+    const msgEmbed = universityMsgHeader()
+        .setColor(config.COLOR_SUCCESS)
+        .setDescription(
+            `La matrícula **${studentData.matricula}** ahora está vinculada a tu cuenta de discord.\nDentro de unos instantes, tus roles serán asignados y tendrás acceso a todo lo relacionado a tu formación profesional. ¡Buena suerte!\n`
+        )
         .setTitle('**🎉 ¡Felicidades! 🎉**')
         .addFields(
             {
@@ -79,13 +85,7 @@ const successRegistered = async function (
                 inline: true,
             },
             { name: '\u200B', value: '\u200B' }
-        )
-        .setFooter(
-            'No olvides que puedes utilizar !help para ver una lista completa de los comandos con los que te puedo ayudar'
-        )
-        .setAuthor(config.UNIVERSITY_FULL_NAME, `${config.LOGO_URL}`)
-        .setThumbnail(`${config.LOGO_URL}`)
-        .setTimestamp();
+        );
     userDiscord.send(msgEmbed);
     await addRoles(studentData, userDiscord);
 };
