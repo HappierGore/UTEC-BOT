@@ -22,7 +22,12 @@ const getCells = function (workSheet) {
     }
     return cells;
 };
-
+/**
+ * Will create an Object with all data about student's schedule
+ * @param {cells} cells Cells of the book
+ * @param {workSheet} workSheet Sheet of the book
+ * @returns {Object} All information about schedule is nicely formatted in this object
+ */
 const createScheduleObject = function (cells, workSheet) {
     const schedule = {
         materias: [],
@@ -68,7 +73,7 @@ const getSchedule = function (group) {
     // Create object with all properties of the workSheet
     const schedule = createScheduleObject(cells, workSheet);
 
-    console.log(schedule);
+    return schedule;
 };
 
 module.exports = {

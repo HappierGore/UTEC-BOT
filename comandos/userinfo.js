@@ -13,6 +13,7 @@ const {
 
 module.exports = async function (client, message, args) {
     const messageAuthor = message.author;
+
     const errUsage =
         'Debes especificar al usuario, puedes utilizar **@** para nombrar a un usuario o utilizar una **matrícula** a 10 dígitos';
     try {
@@ -34,7 +35,7 @@ module.exports = async function (client, message, args) {
         checkRoles(
             message.member,
             rolesToCheck,
-            `No tienes permisos para utilizar este comando, debes tener al menos un rol de los siguientes roles:\n ${rolesNames}`
+            `No tienes permisos para utilizar este comando, debes tener al menos uno de los siguientes roles:\n ${rolesNames}`
         );
 
         // Check the right amount of arguments

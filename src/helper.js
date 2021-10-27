@@ -32,6 +32,13 @@ const wait = function (seconds) {
 const simpleEmbedMSG = (color, description) =>
     new MessageEmbed().setColor(color).setDescription(description);
 
+const universityMsgHeader = (footer = '') =>
+    new MessageEmbed()
+        .setThumbnail(config.LOGO_URL)
+        .setAuthor(config.UNIVERSITY_FULL_NAME, config.LOGO_URL)
+        .setFooter(
+            `${footer}\n© Copyright 2021 Edgar Uriel Herrera Franco (HappierGore). All rights reserved.`
+        );
 /**
  * Retornará un embed con todos los datos del usuario seleccionado. Este puede ser buscado por matrícula o al nombrar a un usuario de discord.
  * @param {Object} studentDataAPI Los datos del API del usuario
@@ -64,12 +71,12 @@ const studentResumeEmbed = (studentDataAPI, studentDataDB, studentDiscord) =>
 
 /**
  * Creará un conjunto de objetos con el formato necesario para los fields de los mensajes Embed. {name 'someName', value: 'someValue'}
- * @param {Object | Array} obj Datos del alumno
+ * @param {Object} obj Datos del alumno
  * @param {Boolean} line Los fields deberían estar en columnas?
  * @returns {Object} Información del alumno en formato "Field" para mensajes embed
  */
 const createFields = function (obj, line = false) {
-    const objArr = typeof obj === 'object' ? Object.entries(obj) : obj;
+    const objArr = Object.entries(obj);
     const newObj = objArr.map((el) => {
         return { name: `${firstUpperCase(el[0])}`, value: el[1], inline: line };
     });
@@ -124,4 +131,5 @@ module.exports = {
     createFields,
     firstUpperCase,
     studentResumeEmbed,
+    universityMsgHeader,
 };

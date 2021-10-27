@@ -2,7 +2,12 @@ const {
     checkCmdInChannel,
     checkRegistered,
 } = require('../src/cmdCheckOuts.js');
-const { simpleEmbedMSG, wait, findUser } = require('../src/helper.js');
+const {
+    simpleEmbedMSG,
+    wait,
+    findUser,
+    universityMsgHeader,
+} = require('../src/helper.js');
 const config = require('../configuration/config.js');
 
 const unregisterUser = function (client, userDiscord) {
@@ -11,10 +16,11 @@ const unregisterUser = function (client, userDiscord) {
 
 const successDeleted = async function (matricula, userDiscord) {
     const studentData = await findUser(matricula);
-    const msgEmbed = simpleEmbedMSG(
-        config.COLOR_SUCCESS,
-        `La matrícula **${matricula}** se ha removido de tu cuenta de discord.\nDentro de unos instantes, tus roles serán removidos y perderás el acceso a todos los canales, y ahora serás un invitado.\nPuedes volver a registrarte visitando **#registro** en el servidor`
-    )
+    const msgEmbed = universityMsgHeader()
+        .setColor(config.COLOR_SUCCESS)
+        .setDescription(
+            `La matrícula **${matricula}** se ha removido de tu cuenta de discord.\nDentro de unos instantes, tus roles serán removidos y perderás el acceso a todos los canales, y ahora serás un invitado.\nPuedes volver a registrarte visitando **#registro** en el servidor`
+        )
         .setTitle('**❌ ¡Eliminado! ❌**')
         .addFields(
             {
@@ -31,13 +37,7 @@ const successDeleted = async function (matricula, userDiscord) {
                 inline: true,
             },
             { name: '\u200B', value: '\u200B' }
-        )
-        .setFooter(
-            'No olvides que puedes utilizar !help para ver una lista completa de los comandos con los que te puedo ayudar'
-        )
-        .setAuthor(config.UNIVERSITY_FULL_NAME, `${config.LOGO_URL}`)
-        .setThumbnail(`${config.LOGO_URL}`)
-        .setTimestamp();
+        );
     userDiscord.send(msgEmbed);
     resetRoles(userDiscord);
 };

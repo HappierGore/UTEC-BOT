@@ -1,19 +1,21 @@
 {
-  "name": "utecbot",
-  "version": "1.0.0",
-  "description": "",
-  "main": "main.js",
-  "scripts": {
-    "start": "node main.js"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "better-sqlite3": "^7.4.3",
-    "discord.js": "^12.5.1",
-    "node-gyp": "^8.2.0",
-    "save": "^2.4.0",
-    "xlsx": "^0.17.2"
-  }
+    "name": "utecbot",
+    "version": "1.0.0",
+    "description": "",
+    "main": "main.js",
+    "scripts": {
+        "start": "node main.js"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "better-sqlite3": "^7.4.3",
+        "discord.js": "12.5.1",
+        "lodash": "^4.17.21",
+        "markdown-table-ts": "^1.0.3",
+        "node-gyp": "^8.2.0",
+        "save": "^2.4.0",
+        "xlsx": "^0.17.2"
+    }
 }
