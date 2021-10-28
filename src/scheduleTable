@@ -139,7 +139,7 @@ const renderDays = function (row, days, separator) {
  * @param {Number} page Pagina a desplegar
  * @returns {Array} Tabla creada con todas las materias y horas correspondientes
  */
-const createScheduleTable = function (scheduleObj, page = 1) {
+const createScheduleTable = function (scheduleObj, page = 1, deviceType) {
     const separator = '-'.repeat(18);
 
     // Get the names of the weekDay since object
@@ -147,11 +147,21 @@ const createScheduleTable = function (scheduleObj, page = 1) {
         firstUpperCase(dia)
     );
     // Build table header structure
-    const headTable = [
-        ['Hora', daysNames[0], daysNames[1]],
-        ['Hora', daysNames[2], daysNames[3]],
-        ['Hora', daysNames[4], daysNames[5]],
-    ];
+    const headTable =
+        deviceType.includes('desktop') || deviceType.includes('invisible')
+            ? [
+                  ['Hora', daysNames[0], daysNames[1]],
+                  ['Hora', daysNames[2], daysNames[3]],
+                  ['Hora', daysNames[4], daysNames[5]],
+              ]
+            : [
+                  ['Hora', daysNames[0]],
+                  ['Hora', daysNames[1]],
+                  ['Hora', daysNames[2]],
+                  ['Hora', daysNames[3]],
+                  ['Hora', daysNames[4]],
+                  ['Hora', daysNames[5]],
+              ];
 
     // Create all weekdays with WeekDay class
     const lunes = new WeekDay(scheduleObj.horario.lunes, 'lunes');
@@ -192,9 +202,40 @@ const createScheduleTable = function (scheduleObj, page = 1) {
         else separatorHours.push(hour);
     });
 
-    let daysToRender = [lunes, martes];
-    if (page === 2) daysToRender = [miercoles, jueves];
-    if (page === 3) daysToRender = [viernes, sabado];
+    // Mobile pages
+    // Desktop pages
+    if (deviceType.includes('desktop') || deviceType.includes('invisible')) {
+        if (page === 1) daysToRender = [lunes, martes];
+        if (page === 2) daysToRender = [miercoles, jueves];
+        if (page === 3) daysToRender = [viernes, sabado];
+    } else {
+        switch (page) {
+            case 1: {
+                daysToRender = [lunes];
+                break;
+            }
+            case 2: {
+                daysToRender = [martes];
+                break;
+            }
+            case 3: {
+                daysToRender = [miercoles];
+                break;
+            }
+            case 4: {
+                daysToRender = [jueves];
+                break;
+            }
+            case 5: {
+                daysToRender = [viernes];
+                break;
+            }
+            case 6: {
+                daysToRender = [sabado];
+                break;
+            }
+        }
+    }
 
     // Render all signatures in the right hour and save it in a new variable
     const finishedRow = renderDays(
@@ -213,7 +254,9 @@ const createScheduleTable = function (scheduleObj, page = 1) {
         alignColumns: true,
     });
     console.log(table);
-    return universityMsgHeader('Utiliza 🔽 para descargar el horario')
+    return universityMsgHeader(
+        'Utiliza 🔽 para descargar el horario\nUtiliza 📱 para cambiar la vista a teléfono, se recomienda una tamaño de letra del 80% (Ajustes>Apariencia>Escala de fuente)'
+    )
         .setColor(config.COLOR_HINT)
         .setDescription(`\`${table}\``)
         .setThumbnail();
