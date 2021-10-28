@@ -47,27 +47,14 @@ const universityMsgHeader = (footer = '') =>
  * @returns {EmbedMessage} Todos los datos de un usuario en un maravilloso embed
  */
 const studentResumeEmbed = (studentDataAPI, studentDataDB, studentDiscord) =>
-    new MessageEmbed()
-        .setAuthor(config.UNIVERSITY_FULL_NAME)
+    universityMsgHeader()
         .setTitle(`Resumen del usuario ${studentDiscord.username}`)
-        .setThumbnail(config.LOGO_URL)
-        .addFields(
-            studentDataAPI
-                ? createFields(studentDataAPI, true)
-                : { name: '\u200B', value: '\u200B', inline: true },
-            studentDataDB
-                ? {
-                      name: 'Fecha registro',
-                      value: studentDataDB.FechaRegistro,
-                      inline: true,
-                  }
-                : { name: '\u200B', value: '\u200B', inline: true }
-        )
-        .setColor(config.COLOR_HINT)
-        .setFooter(
-            'No olvides que puedes utilizar !help para ver una lista completa de los comandos con los que te puedo ayudar'
-        )
-        .setTimestamp();
+        .addFields(createFields(studentDataAPI, true), {
+            name: 'Fecha registro',
+            value: studentDataDB.FechaRegistro,
+            inline: true,
+        })
+        .setColor(config.COLOR_HINT);
 
 /**
  * Creará un conjunto de objetos con el formato necesario para los fields de los mensajes Embed. {name 'someName', value: 'someValue'}
@@ -123,6 +110,11 @@ const numberToEmoji = function (number) {
     return newNumber;
 };
 
+const getDeviceType = (discordUser) =>
+    discordUser?.presence?.clientStatus
+        ? Object.keys(discordUser.presence.clientStatus).join(' y ')
+        : 'invisible mode enabled (no way to know the status)';
+
 module.exports = {
     findUser,
     wait,
@@ -132,4 +124,5 @@ module.exports = {
     firstUpperCase,
     studentResumeEmbed,
     universityMsgHeader,
+    getDeviceType,
 };

@@ -5,6 +5,7 @@ let config = {
 
     TIME_OUT_REGISTER_SEC: 30,
     TIME_OUT_UNREGISTER_SEC: 30,
+    LIFETIME_SCHEDULE_SEC: 60,
 
     // ------------------------------------------------------------------
     // COLORES

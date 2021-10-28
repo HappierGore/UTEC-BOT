@@ -9,6 +9,7 @@ const {
     simpleEmbedMSG,
     findUser,
     studentResumeEmbed,
+    universityMsgHeader,
 } = require('../src/helper');
 
 module.exports = async function (client, message, args) {
@@ -79,9 +80,13 @@ module.exports = async function (client, message, args) {
                   studentDB,
                   studentDiscord
               )
-            : studentResumeEmbed(null, null, studentDiscord).setDescription(
-                  'No hay datos disponibles, Este usuario aún no se ha registrado.'
-              );
+            : universityMsgHeader()
+                  .setDescription(
+                      'No hay datos disponibles, Este usuario aún no se ha registrado.'
+                  )
+                  .addFields({ name: '\u200B', value: '\u200B', inline: true })
+                  .setTitle(`Resumen del usuario ${studentDiscord.username}`)
+                  .setColor(config.COLOR_HINT);
 
         //   Send info message to who request it
         messageAuthor.send(msgToSend);

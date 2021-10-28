@@ -7,16 +7,17 @@ const {
     simpleEmbedMSG,
     findUser,
     universityMsgHeader,
+    getDeviceType,
+    wait,
 } = require('../src/helper.js');
 const { createScheduleTable } = require('../src/scheduleTable');
 const config = require('../configuration/config');
 const excelManager = require('../src/excelManager.js');
 
 module.exports = async function (client, message, args) {
+    const cmdName = message.content.split(' ')[0];
     const messageAuthor = message.author;
-    const errUsage = `El comando **${
-        message.content.split(' ')[0]
-    }** no requiere ningún argumento extra.`;
+    const errUsage = `El comando **${cmdName}** no requiere ningún argumento extra.`;
     try {
         // Check if the command is executed inside the server
         checkNoDM(message);
@@ -42,14 +43,20 @@ module.exports = async function (client, message, args) {
         // Get object nicely formatted from excel book
         const schedule = excelManager.getSchedule(userData.grupo);
 
+        let deviceType = getDeviceType(userDiscord);
         // Create the table using only strings
-        let scheduleTable = createScheduleTable(schedule).setTitle(
-            `Horarios del grupo ${userData.grupo}`
-        );
+        let scheduleTable = createScheduleTable(
+            schedule,
+            1,
+            deviceType
+        ).setTitle(`Horarios del grupo ${userData.grupo}`);
 
         // Pagination limitations
         let page = 1;
-        const pageLimit = [1, 3];
+        let pageLimit =
+            deviceType.includes('desktop') || deviceType.includes('invisible')
+                ? [1, 3]
+                : [1, 6];
 
         // Send table
         const msgTable = await messageAuthor.send(scheduleTable);
@@ -58,11 +65,12 @@ module.exports = async function (client, message, args) {
         msgTable.react('👈');
         msgTable.react('🔽');
         msgTable.react('👉');
+        msgTable.react('📱');
 
         // Add collector with dispose enable, this will allow us to listen for remove event
         const collector = msgTable.createReactionCollector(
             (_, user) => !user.bot,
-            { dispose: true }
+            { dispose: true, time: config.LIFETIME_SCHEDULE_SEC * 1000 }
         );
 
         // List of events to listen
@@ -75,7 +83,8 @@ module.exports = async function (client, message, args) {
                     // Update table
                     scheduleTable = createScheduleTable(
                         schedule,
-                        page
+                        page,
+                        deviceType
                     ).setTitle(`Horarios del grupo ${userData.grupo}`);
                     msgTable.edit(scheduleTable);
                 }
@@ -84,7 +93,8 @@ module.exports = async function (client, message, args) {
                     page--;
                     scheduleTable = createScheduleTable(
                         schedule,
-                        page
+                        page,
+                        deviceType
                     ).setTitle(`Horarios del grupo ${userData.grupo}`);
                     msgTable.edit(scheduleTable);
                 }
@@ -110,7 +120,34 @@ module.exports = async function (client, message, args) {
                         ],
                     });
                 }
+                if (reaction.emoji.name === '📱') {
+                    if (e === pageEvents[1]) {
+                        deviceType = 'phone';
+                        pageLimit = [1, 6];
+                    } else {
+                        deviceType = 'desktop';
+                        pageLimit = [1, 3];
+                    }
+                    page = 1;
+                    scheduleTable = createScheduleTable(
+                        schedule,
+                        page,
+                        deviceType
+                    ).setTitle(`Horarios del grupo ${userData.grupo}`);
+                    msgTable.edit(scheduleTable);
+                }
             });
+        });
+        wait(config.LIFETIME_SCHEDULE_SEC).then(() => {
+            if (!msgTable.deleted) {
+                msgTable.delete();
+                messageAuthor.send(
+                    simpleEmbedMSG(
+                        config.COLOR_HINT,
+                        `El horario previamente solicitado ha caducado.\nPuedes volver a solicitar otro utilizando **${cmdName}** dentro del servidor de la universidad`
+                    )
+                );
+            }
         });
     } catch (err) {
         messageAuthor.send(simpleEmbedMSG(config.COLOR_ERROR, err.message));
