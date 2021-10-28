@@ -1,7 +1,7 @@
 const { cloneDeep } = require('lodash');
 const { Align, getMarkdownTable } = require('markdown-table-ts');
 const config = require('../configuration/config.js');
-const { firstUpperCase, universityMsgHeader } = require('../src/helper.js');
+const { firstUpperCase, universityMsgHeader } = require('./helper.js');
 class WeekDay {
     constructor(day, dayName) {
         if (!day) {
@@ -253,7 +253,6 @@ const createScheduleTable = function (scheduleObj, page = 1, deviceType) {
         alignment: [Align.Center, Align.Center, Align.Center, Align.Center],
         alignColumns: true,
     });
-    console.log(table);
     return universityMsgHeader(
         'Utiliza 🔽 para descargar el horario\nUtiliza 📱 para cambiar la vista a teléfono, se recomienda una tamaño de letra del 80% (Ajustes>Apariencia>Escala de fuente)'
     )
