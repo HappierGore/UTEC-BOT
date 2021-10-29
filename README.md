@@ -21,5 +21,13 @@ The rest of the server is that, a server nicely organized to allow to students t
 The bot is just for make easier the navigation and administration of data.
 Hopelly, this project will grow and be a great and helpful tool.
 
+Tools used and challenges for me:
+1. Get data from Excel datasheet and transform it to tables for discord.
+2. Get data from mySQL lite, manipulate data.
+3. Get data from an simulated API and mySQL lite as key-finder.
+4. Prevent command spammer.
+5. Make a register system just for students, teachers and University workers.
+6. Create commands with permissions based ond "flags" or roles. (No default permissions as "GUILD_MEMBER").
+
 Please, don't steal this project, if you wan to participate, send me a message.
 You are not allowed to take this proyect as own.
