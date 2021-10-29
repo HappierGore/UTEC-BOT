@@ -7,6 +7,7 @@ const {
     wait,
     findUser,
     universityMsgHeader,
+    checkCooldown,
 } = require('../src/helper.js');
 const config = require('../configuration/config.js');
 
@@ -63,6 +64,9 @@ module.exports = async function (client, message, args) {
 
         //Then, get the user
         const userDiscord = await message.guild.member(messageAuthor);
+
+        // Check cooldown
+        checkCooldown(client.cmdCooldowns, message, userDiscord, 5);
 
         // Check if the Discord user has an Student Id registered
         await checkRegistered(client, userDiscord);

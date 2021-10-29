@@ -48,8 +48,8 @@ let config = {
     CHANNEL_WELCOME: '895822788416372747',
 
     // ------------------------------------------------------------------
-    // Iportant messages
+    // Important messages
     // ------------------------------------------------------------------
-    MSG_RULES: '896143833614680064', //IN: CHANNEL_WELCOME
+    MSG_RULES: '903470418801852417', //IN: CHANNEL_WELCOME
 };
 module.exports = config;

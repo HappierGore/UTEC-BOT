@@ -1,5 +1,6 @@
 const { MessageEmbed, Client } = require('discord.js');
 let { readdirSync } = require('fs');
+const { cloneDeep } = require('lodash');
 const config = require('../configuration/config');
 /**
  * Busca entre la API el usuario especificado por matrícula
@@ -115,6 +116,84 @@ const getDeviceType = (discordUser) =>
         ? Object.keys(discordUser.presence.clientStatus).join(' y ')
         : 'invisible mode enabled (no way to know the status)';
 
+const formatTime = function (timeSeg) {
+    // Minutes
+    let seconds, minutes, hours, days, weeks;
+
+    if (timeSeg > 60) {
+        minutes = Math.floor(timeSeg / 60);
+        seconds = timeSeg % 60;
+        if (minutes > 60) {
+            hours = Math.floor(minutes / 60);
+            minutes = minutes % 60;
+            if (hours > 24) {
+                days = Math.floor(hours / 24);
+                hours = hours % 24;
+                if (days > 7) {
+                    weeks = Math.floor(days / 7);
+                    days = days % 7;
+                }
+            }
+        }
+    } else {
+        seconds = timeSeg;
+    }
+    const weeksText = `${weeks ? `${weeks} semana` : ''}`;
+    const daysText = `${days ? `${days} día` : ''}`;
+    const hoursText = `${hours ? `${hours} hora` : ''}`;
+    const minutesText = `${minutes ? `${minutes} minuto` : ''}`;
+    const secondsText = `${seconds ? `${seconds} segundo` : ''}`;
+    const texts = [weeksText, daysText, hoursText, minutesText, secondsText];
+
+    const filteredTexts = texts.filter((txt) => txt);
+    const newTexts = filteredTexts.map((txt, i) => {
+        const nText = +txt.split(' ')[0] > 1 ? `${txt}s` : txt;
+        if (txt && filteredTexts.length - 2 > i) return `${nText},`;
+        if (filteredTexts.length - 1 === i) return `y ${nText}`;
+        return nText;
+    });
+    return newTexts.join(' ').trim();
+};
+
+const checkCooldown = function (cooldowns, message, userDiscord, timeSeg) {
+    const command = message.content.slice(1);
+    const prefix = message.content[0];
+
+    const commandInfo = {};
+
+    const updateData = function (data) {
+        data[command] = Date.now() + timeSeg * 1000;
+    };
+
+    if (!cooldowns.has(userDiscord.id)) {
+        updateData(commandInfo);
+        cooldowns.set(userDiscord.id, cloneDeep(commandInfo));
+        // console.log(`${command} Condition 1 `, cooldowns.get(userDiscord.id));
+        return;
+    }
+    const cmdUserData = cooldowns.get(userDiscord.id);
+
+    if (!cmdUserData[command]) {
+        updateData(cmdUserData);
+        // console.log(`${command} Condition 2 `, cooldowns.get(userDiscord.id));
+        return;
+    }
+
+    if (cmdUserData[command] > Date.now()) {
+        const timeRemaining = Math.floor(
+            (cmdUserData[command] - Date.now()) / 1000
+        );
+        // console.log(`${command} Condition 3 `, cooldowns.get(userDiscord.id));
+        throw new Error(
+            `Has usado el comando **${prefix}${command}** recientemente, por favor, espera ${formatTime(
+                timeRemaining
+            )} antes de volver a utilizarlo 😊`
+        );
+    } else {
+        // console.log(`${command} Condition 4 `, cooldowns.get(userDiscord.id));
+        updateData(cmdUserData);
+    }
+};
 module.exports = {
     findUser,
     wait,
@@ -125,4 +204,6 @@ module.exports = {
     studentResumeEmbed,
     universityMsgHeader,
     getDeviceType,
+    checkCooldown,
+    formatTime,
 };

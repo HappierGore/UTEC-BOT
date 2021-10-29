@@ -4,6 +4,8 @@ const {
     wait,
     simpleEmbedMSG,
     universityMsgHeader,
+    checkCooldown,
+    formatTime,
 } = require('../src/helper.js');
 const {
     checkCmdInChannel,
@@ -98,13 +100,17 @@ module.exports = async function (client, message, args) {
     const user = message.author;
     const email = args[0];
     const matricula = args.length > 0 ? args[0].split('@')[0] : '';
+    formatTime(900810);
 
     try {
         // Check if the command is executed in "register" channel
         await checkCmdInChannel(client, message, config.CHANNEL_REGISTER);
 
         //Then, get the user
-        const userDiscord = message.guild.member(user);
+        const userDiscord = await message.guild.member(user);
+
+        // Check cooldown
+        checkCooldown(client.cmdCooldowns, message, userDiscord, 5);
 
         // Check if the Discord user has not an Student Id registered
         await checkNoRegistered(client, userDiscord);
