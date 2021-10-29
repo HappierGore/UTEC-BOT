@@ -26,6 +26,7 @@ const client = new Discord.Client({
 
 let { readdirSync } = require('fs');
 
+client.cmdCooldowns = new Map();
 client.config = require('./configuration/configBot.js');
 client.comandos = new Discord.Collection();
 //Controlador de comandos

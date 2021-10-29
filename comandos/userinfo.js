@@ -10,6 +10,7 @@ const {
     findUser,
     studentResumeEmbed,
     universityMsgHeader,
+    checkCooldown,
 } = require('../src/helper');
 
 module.exports = async function (client, message, args) {
@@ -20,6 +21,12 @@ module.exports = async function (client, message, args) {
     try {
         // Check if the command is executed inside the server
         checkNoDM(message);
+
+        //Then, get the user
+        const userDiscord = await message.guild.member(messageAuthor);
+
+        // Check cooldown
+        checkCooldown(client.cmdCooldowns, message, userDiscord, 5);
 
         // Array of roles ID to check
         const rolesToCheck = [config.ROLE_MAESTRO, config.ROLE_STAFF];

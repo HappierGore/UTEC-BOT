@@ -9,6 +9,7 @@ const {
     universityMsgHeader,
     getDeviceType,
     wait,
+    checkCooldown,
 } = require('../src/helper.js');
 const { createScheduleTable } = require('../src/scheduleTable');
 const config = require('../configuration/config');
@@ -25,8 +26,16 @@ module.exports = async function (client, message, args) {
         // Check for no arguments
         checkArgs(args, 0, errUsage);
 
-        // Get user discord
+        //Then, get the user
         const userDiscord = await message.guild.member(messageAuthor);
+
+        // Check cooldown
+        checkCooldown(
+            client.cmdCooldowns,
+            message,
+            userDiscord,
+            config.LIFETIME_SCHEDULE_SEC
+        );
 
         // Check that the user is already registered
         await checkRegistered(client, userDiscord, -1);
@@ -151,7 +160,6 @@ module.exports = async function (client, message, args) {
         });
     } catch (err) {
         messageAuthor.send(simpleEmbedMSG(config.COLOR_ERROR, err.message));
-        console.error(err);
     }
     if (message.channel.type !== 'dm') message.delete();
 };
